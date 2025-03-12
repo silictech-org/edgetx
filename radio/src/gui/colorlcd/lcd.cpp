@@ -152,7 +152,7 @@ void lcdInitDisplayDriver()
 #endif
 
   // Clear buffers first
-//  clear_frame_buffers();
+  clear_frame_buffers();
   lcdSetInitalFrameBuffer(lcdFront->getData());
 
   // Init hardware LCD driver
