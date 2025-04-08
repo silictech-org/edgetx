@@ -40,7 +40,7 @@ Backup::RamBackupUncompressed ramBackupUncompressed __DMA;
 RamBackup _ramBackup;
 RamBackup * ramBackup = &_ramBackup;
 #else
-RamBackup * ramBackup = (RamBackup *)BKPSRAM_BASE;
+RamBackup * ramBackup = (RamBackup *)D3_BKPSRAM_BASE;
 #endif
 
 void rambackupWrite()

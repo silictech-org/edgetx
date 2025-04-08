@@ -267,8 +267,8 @@ static const stm32_pulse_timer_t trainerModuleTimer = {
 
 #endif // HARDWARE_EXTERNAL_MODULE
 
-#define TELEMETRY_USART_IRQ_PRIORITY 0
-#define TELEMETRY_DMA_IRQ_PRIORITY   0
+#define TELEMETRY_USART_IRQ_PRIORITY 6
+#define TELEMETRY_DMA_IRQ_PRIORITY   6
 
 static void _set_sport_input(uint8_t enable)
 {
@@ -297,7 +297,7 @@ static const stm32_usart_t sportUSART = {
   .rxDMA_Stream = 0,
   .rxDMA_Channel = 0,
 #if defined(STM32H7) || (STM32H7RS)
-  .set_input = nullptr,
+  .set_input = _set_sport_input,
 #else
   .set_input = _set_sport_input,
 #endif
