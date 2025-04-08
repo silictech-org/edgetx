@@ -133,7 +133,7 @@ void usbInit()
 #if defined(USB_GPIO_VBUS_OPEN_DRAIN)
   gpio_init(USB_GPIO_VBUS, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 #else
-  gpio_init(USB_GPIO_VBUS, GPIO_IN, GPIO_PIN_SPEED_LOW);
+  gpio_init(USB_GPIO_VBUS, GPIO_IN_PD, GPIO_PIN_SPEED_LOW);
 #endif
 #endif
 

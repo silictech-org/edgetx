@@ -464,6 +464,11 @@ bool stm32_usart_init(const stm32_usart_t* usart, const etx_serial_init* params)
   {
     LL_USART_EnableHalfDuplex(usart->USARTx);
   }
+
+  // silic temp
+  if(usart->USARTx == USART2) {
+    stm32_usart_tx_rx_swap();
+  }
 #endif
   LL_USART_Enable(usart->USARTx);
 
@@ -789,3 +794,12 @@ void stm32_usart_tx_dma_isr(const stm32_usart_t* usart)
   LL_USART_ClearFlag_TC(USARTx);
   LL_USART_EnableIT_TC(USARTx);
 }
+
+#if defined(STM32H7) || defined(STM32H7RS)
+// temp tx rx swap
+void stm32_usart_tx_rx_swap(void) {
+  LL_USART_SetTXRXSwap(USART2, LL_USART_TXRX_SWAPPED);
+  LL_USART_ConfigHalfDuplexMode(USART2);
+}
+
+#endif

@@ -64,6 +64,17 @@
   #define HSI_VALUE    ((uint32_t)64000000) /*!< Value of the Internal oscillator in Hz*/
 #endif /* HSI_VALUE */
 
+#if defined(__ICCARM__)
+extern uint32_t __vector_table;
+#define INTVECT_START ((uint32_t)& __vector_table)
+#elif defined(__CC_ARM) || defined(__ARMCC_VERSION)
+extern void * __Vectors;
+#define INTVECT_START ((uint32_t) & __Vectors)
+#elif defined(__GNUC__)
+extern void * g_pfnVectors;
+#define INTVECT_START ((uint32_t)& g_pfnVectors)
+#endif /* __ICCARM__*/
+
 
 /**
   * @}
@@ -183,129 +194,130 @@
 
 BOOTSTRAP void SystemInit (void)
 {
-#if defined (DATA_IN_D2_SRAM)
- __IO uint32_t tmpreg;
-#endif /* DATA_IN_D2_SRAM */
+  SCB->VTOR = INTVECT_START;
+// #if defined (DATA_IN_D2_SRAM)
+//  __IO uint32_t tmpreg;
+// #endif /* DATA_IN_D2_SRAM */
 
   /* FPU settings ------------------------------------------------------------*/
   #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << (10*2))|(3UL << (11*2)));  /* set CP10 and CP11 Full Access */
   #endif
-  /* Reset the RCC clock configuration to the default reset state ------------*/
+//   /* Reset the RCC clock configuration to the default reset state ------------*/
 
-   /* Increasing the CPU frequency */
-  if(FLASH_LATENCY_DEFAULT  > (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY)))
-  {
-    /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
-    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(FLASH_LATENCY_DEFAULT));
-  }
+//    /* Increasing the CPU frequency */
+//   if(FLASH_LATENCY_DEFAULT  > (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY)))
+//   {
+//     /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
+//     MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(FLASH_LATENCY_DEFAULT));
+//   }
 
-  /* Set HSION bit */
-  RCC->CR |= RCC_CR_HSION;
+//   /* Set HSION bit */
+//   RCC->CR |= RCC_CR_HSION;
 
-  /* Reset CFGR register */
-  RCC->CFGR = 0x00000000;
+//   /* Reset CFGR register */
+//   RCC->CFGR = 0x00000000;
 
-  /* Reset HSEON, HSECSSON, CSION, HSI48ON, CSIKERON, PLL1ON, PLL2ON and PLL3ON bits */
-  RCC->CR &= 0xEAF6ED7FU;
+//   /* Reset HSEON, HSECSSON, CSION, HSI48ON, CSIKERON, PLL1ON, PLL2ON and PLL3ON bits */
+//   RCC->CR &= 0xEAF6ED7FU;
 
-   /* Decreasing the number of wait states because of lower CPU frequency */
-  if(FLASH_LATENCY_DEFAULT  < (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY)))
-  {
-    /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
-    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(FLASH_LATENCY_DEFAULT));
-  }
+//    /* Decreasing the number of wait states because of lower CPU frequency */
+//   if(FLASH_LATENCY_DEFAULT  < (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY)))
+//   {
+//     /* Program the new number of wait states to the LATENCY bits in the FLASH_ACR register */
+//     MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(FLASH_LATENCY_DEFAULT));
+//   }
 
-#if defined(D3_SRAM_BASE)
-  /* Reset D1CFGR register */
-  RCC->D1CFGR = 0x00000000;
+// #if defined(D3_SRAM_BASE)
+//   /* Reset D1CFGR register */
+//   RCC->D1CFGR = 0x00000000;
 
-  /* Reset D2CFGR register */
-  RCC->D2CFGR = 0x00000000;
+//   /* Reset D2CFGR register */
+//   RCC->D2CFGR = 0x00000000;
 
-  /* Reset D3CFGR register */
-  RCC->D3CFGR = 0x00000000;
-#else
-  /* Reset CDCFGR1 register */
-  RCC->CDCFGR1 = 0x00000000;
+//   /* Reset D3CFGR register */
+//   RCC->D3CFGR = 0x00000000;
+// #else
+//   /* Reset CDCFGR1 register */
+//   RCC->CDCFGR1 = 0x00000000;
 
-  /* Reset CDCFGR2 register */
-  RCC->CDCFGR2 = 0x00000000;
+//   /* Reset CDCFGR2 register */
+//   RCC->CDCFGR2 = 0x00000000;
 
-  /* Reset SRDCFGR register */
-  RCC->SRDCFGR = 0x00000000;
-#endif
-  /* Reset PLLCKSELR register */
-  RCC->PLLCKSELR = 0x02020200;
+//   /* Reset SRDCFGR register */
+//   RCC->SRDCFGR = 0x00000000;
+// #endif
+//   /* Reset PLLCKSELR register */
+//   RCC->PLLCKSELR = 0x02020200;
 
-  /* Reset PLLCFGR register */
-  RCC->PLLCFGR = 0x01FF0000;
-  /* Reset PLL1DIVR register */
-  RCC->PLL1DIVR = 0x01010280;
-  /* Reset PLL1FRACR register */
-  RCC->PLL1FRACR = 0x00000000;
+//   /* Reset PLLCFGR register */
+//   RCC->PLLCFGR = 0x01FF0000;
+//   /* Reset PLL1DIVR register */
+//   RCC->PLL1DIVR = 0x01010280;
+//   /* Reset PLL1FRACR register */
+//   RCC->PLL1FRACR = 0x00000000;
 
-  /* Reset PLL2DIVR register */
-  RCC->PLL2DIVR = 0x01010280;
+//   /* Reset PLL2DIVR register */
+//   RCC->PLL2DIVR = 0x01010280;
 
-  /* Reset PLL2FRACR register */
+//   /* Reset PLL2FRACR register */
 
-  RCC->PLL2FRACR = 0x00000000;
-  /* Reset PLL3DIVR register */
-  RCC->PLL3DIVR = 0x01010280;
+//   RCC->PLL2FRACR = 0x00000000;
+//   /* Reset PLL3DIVR register */
+//   RCC->PLL3DIVR = 0x01010280;
 
-  /* Reset PLL3FRACR register */
-  RCC->PLL3FRACR = 0x00000000;
+//   /* Reset PLL3FRACR register */
+//   RCC->PLL3FRACR = 0x00000000;
 
-  /* Reset HSEBYP bit */
-  RCC->CR &= 0xFFFBFFFFU;
+//   /* Reset HSEBYP bit */
+//   RCC->CR &= 0xFFFBFFFFU;
 
-  /* Disable all interrupts */
-  RCC->CIER = 0x00000000;
+//   /* Disable all interrupts */
+//   RCC->CIER = 0x00000000;
 
-#if (STM32H7_DEV_ID == 0x450UL)
-  /* dual core CM7 or single core line */
-  if((DBGMCU->IDCODE & 0xFFFF0000U) < 0x20000000U)
-  {
-    /* if stm32h7 revY*/
-    /* Change  the switch matrix read issuing capability to 1 for the AXI SRAM target (Target 7) */
-    *((__IO uint32_t*)0x51008108) = 0x000000001U;
-  }
-#endif /* STM32H7_DEV_ID */
+// #if (STM32H7_DEV_ID == 0x450UL)
+//   /* dual core CM7 or single core line */
+//   if((DBGMCU->IDCODE & 0xFFFF0000U) < 0x20000000U)
+//   {
+//     /* if stm32h7 revY*/
+//     /* Change  the switch matrix read issuing capability to 1 for the AXI SRAM target (Target 7) */
+//     *((__IO uint32_t*)0x51008108) = 0x000000001U;
+//   }
+// #endif /* STM32H7_DEV_ID */
 
-#if defined(DATA_IN_D2_SRAM)
-  /* in case of initialized data in D2 SRAM (AHB SRAM), enable the D2 SRAM clock (AHB SRAM clock) */
-#if defined(RCC_AHB2ENR_D2SRAM3EN)
-  RCC->AHB2ENR |= (RCC_AHB2ENR_D2SRAM1EN | RCC_AHB2ENR_D2SRAM2EN | RCC_AHB2ENR_D2SRAM3EN);
-#elif defined(RCC_AHB2ENR_D2SRAM2EN)
-  RCC->AHB2ENR |= (RCC_AHB2ENR_D2SRAM1EN | RCC_AHB2ENR_D2SRAM2EN);
-#else
-  RCC->AHB2ENR |= (RCC_AHB2ENR_AHBSRAM1EN | RCC_AHB2ENR_AHBSRAM2EN);
-#endif /* RCC_AHB2ENR_D2SRAM3EN */
+// #if defined(DATA_IN_D2_SRAM)
+//   /* in case of initialized data in D2 SRAM (AHB SRAM), enable the D2 SRAM clock (AHB SRAM clock) */
+// #if defined(RCC_AHB2ENR_D2SRAM3EN)
+//   RCC->AHB2ENR |= (RCC_AHB2ENR_D2SRAM1EN | RCC_AHB2ENR_D2SRAM2EN | RCC_AHB2ENR_D2SRAM3EN);
+// #elif defined(RCC_AHB2ENR_D2SRAM2EN)
+//   RCC->AHB2ENR |= (RCC_AHB2ENR_D2SRAM1EN | RCC_AHB2ENR_D2SRAM2EN);
+// #else
+//   RCC->AHB2ENR |= (RCC_AHB2ENR_AHBSRAM1EN | RCC_AHB2ENR_AHBSRAM2EN);
+// #endif /* RCC_AHB2ENR_D2SRAM3EN */
 
-  tmpreg = RCC->AHB2ENR;
-  (void) tmpreg;
-#endif /* DATA_IN_D2_SRAM */
+//   tmpreg = RCC->AHB2ENR;
+//   (void) tmpreg;
+// #endif /* DATA_IN_D2_SRAM */
 
-#if defined(DUAL_CORE) && defined(CORE_CM4)
-  /* Configure the Vector Table location add offset address for cortex-M4 ------------------*/
-#if defined(USER_VECT_TAB_ADDRESS)
-  SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal D2 AXI-RAM or in Internal FLASH */
-#endif /* USER_VECT_TAB_ADDRESS */
+// #if defined(DUAL_CORE) && defined(CORE_CM4)
+//   /* Configure the Vector Table location add offset address for cortex-M4 ------------------*/
+// #if defined(USER_VECT_TAB_ADDRESS)
+//   SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal D2 AXI-RAM or in Internal FLASH */
+// #endif /* USER_VECT_TAB_ADDRESS */
 
-#else
-  /*
-   * Disable the FMC bank1 (enabled after reset).
-   * This, prevents CPU speculation access on this bank which blocks the use of FMC during
-   * 24us. During this time the others FMC master (such as LTDC) cannot use it!
-   */
-  FMC_Bank1_R->BTCR[0] = 0x000030D2;
-  /* Configure the Vector Table location -------------------------------------*/
-#if defined(USER_VECT_TAB_ADDRESS)
-  SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal D1 AXI-RAM or in Internal FLASH */
-#endif /* USER_VECT_TAB_ADDRESS */
+// #else
+//   /*
+//    * Disable the FMC bank1 (enabled after reset).
+//    * This, prevents CPU speculation access on this bank which blocks the use of FMC during
+//    * 24us. During this time the others FMC master (such as LTDC) cannot use it!
+//    */
+//   FMC_Bank1_R->BTCR[0] = 0x000030D2;
+//   /* Configure the Vector Table location -------------------------------------*/
+// #if defined(USER_VECT_TAB_ADDRESS)
+//   SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal D1 AXI-RAM or in Internal FLASH */
+// #endif /* USER_VECT_TAB_ADDRESS */
 
-#endif /*DUAL_CORE && CORE_CM4*/
+// #endif /*DUAL_CORE && CORE_CM4*/
 }
 
 /**
@@ -454,7 +466,7 @@ void UsageFault_Handler(void){asm("BKPT");}
 void DebugMon_Handler(void){asm("BKPT");}
 //void PendSV_Handler(void){asm("BKPT");}
 //void SysTick_Handler(void){asm("BKPT");}
-void WWDG_IRQHandler(void){asm("BKPT");}
+void WWDG_IRQHandler(void){asm("BKPT");}                    
 void PVD_AVD_IRQHandler(void){asm("BKPT");}
 void TAMP_STAMP_IRQHandler(void){asm("BKPT");}
 void RTC_WKUP_IRQHandler(void){asm("BKPT");}
@@ -464,7 +476,7 @@ void EXTI0_IRQHandler(void){asm("BKPT");}
 void EXTI1_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream1_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream2_IRQHandler(void){asm("BKPT");}
-void DMA1_Stream3_IRQHandler(void){asm("BKPT");}
+// void DMA1_Stream3_IRQHandler(void){asm("BKPT");}
 void DMA1_Stream4_IRQHandler(void){asm("BKPT");}
 //void ADC_IRQHandler(void){asm("BKPT");}
 void FDCAN1_IT0_IRQHandler(void){asm("BKPT");}
@@ -473,10 +485,10 @@ void FDCAN1_IT1_IRQHandler(void){asm("BKPT");}
 void FDCAN2_IT1_IRQHandler(void){asm("BKPT");}
 void TIM1_BRK_IRQHandler(void){asm("BKPT");}
 void TIM1_UP_IRQHandler(void){asm("BKPT");}
-void TIM1_TRG_COM_IRQHandler(void){asm("BKPT");}
+// void TIM1_TRG_COM_IRQHandler(void){asm("BKPT");}
 void TIM1_CC_IRQHandler(void){asm("BKPT");}
 void TIM2_IRQHandler(void){asm("BKPT");}
-void TIM3_IRQHandler(void){asm("BKPT");}
+// void TIM3_IRQHandler(void){asm("BKPT");}
 // void TIM4_IRQHandler(void){asm("BKPT");}
 void I2C1_EV_IRQHandler(void){asm("BKPT");}
 void I2C1_ER_IRQHandler(void){asm("BKPT");}
@@ -489,7 +501,7 @@ void RTC_Alarm_IRQHandler(void){asm("BKPT");}
 void TIM8_CC_IRQHandler(void){asm("BKPT");}
 //void DMA1_Stream7_IRQHandler(void){asm("BKPT");}
 void FMC_IRQHandler(void){asm("BKPT");}
-void TIM5_IRQHandler(void){asm("BKPT");}
+// void TIM5_IRQHandler(void){asm("BKPT");}
 void SPI3_IRQHandler(void){asm("BKPT");}
 //void UART5_IRQHandler(void){asm("BKPT");}
 void TIM7_IRQHandler(void){asm("BKPT");}

@@ -165,15 +165,24 @@ static volatile uint32_t ReadStatus;
 
 static void _sd_sdio_clk_enable(SD_SDIO_TypeDef* periph)
 {
-#if defined(SDMMC1)
-  if (periph == SDMMC1) {
-    __HAL_RCC_SDMMC1_CLK_ENABLE();
-  } else if(periph == SDMMC2) {
-    __HAL_RCC_SDMMC2_CLK_ENABLE();
-  }
+
+#if defined(STM32H7)
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SDMMC;
+  PeriphClkInitStruct.SdmmcClockSelection = RCC_SDMMCCLKSOURCE_PLL;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK);
+  __HAL_RCC_SDMMC1_CLK_ENABLE();
 #else
-  (void)periph;
-  __HAL_RCC_SDIO_CLK_ENABLE();
+  #if defined(SDMMC1)
+    if (periph == SDMMC1) {
+      __HAL_RCC_SDMMC1_CLK_ENABLE();
+    } else if(periph == SDMMC2) {
+      __HAL_RCC_SDMMC2_CLK_ENABLE();
+    }
+  #else
+    (void)periph;
+    __HAL_RCC_SDIO_CLK_ENABLE();
+  #endif
 #endif
 }
 

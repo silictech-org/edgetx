@@ -256,11 +256,11 @@ static void qspi_init_hal_struct()
 {
   hqspi.Instance = QUADSPI;
   hqspi.Init.ClockPrescaler = qspi_compute_prescaler(QSPI_MAX_FREQ);
-  hqspi.Init.FifoThreshold = 8;
-  hqspi.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_NONE;
-  hqspi.Init.FlashSize = POSITION_VAL(QSPI_FLASH_SIZE);
+  hqspi.Init.FifoThreshold = 32;
+  hqspi.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_HALFCYCLE;
+  hqspi.Init.FlashSize = 23;
   hqspi.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_1_CYCLE;
-  hqspi.Init.ClockMode = QSPI_CLOCK_MODE_0;
+  hqspi.Init.ClockMode = QSPI_CLOCK_MODE_3;
   hqspi.Init.FlashID = QSPI_FLASH_ID_1;
   hqspi.Init.DualFlash = QSPI_DUALFLASH_DISABLE;
 }

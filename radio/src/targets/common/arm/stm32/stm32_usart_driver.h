@@ -25,7 +25,7 @@
 #include "hal/serial_driver.h"
 #include "hal/gpio.h"
 #include "stm32_hal_ll.h"
-
+#include "stdbool.h"
 typedef void (*pin_setter_t)(uint8_t enable);
 
 struct stm32_usart_t {
@@ -77,4 +77,6 @@ void stm32_usart_set_baudrate(const stm32_usart_t* usart, uint32_t baudrate);
 void stm32_usart_set_hw_option(const stm32_usart_t* usart, uint32_t option);
 void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb);
 void stm32_usart_tx_dma_isr(const stm32_usart_t* usart);
+void uart_test_init(void) ;
+void stm32_usart_tx_rx_swap(void) ;
 

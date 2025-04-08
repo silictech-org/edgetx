@@ -154,7 +154,7 @@ void SDRAM_InitSequence(void)
   FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* Wait until the SDRAM controller is ready */
-  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
+  // while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
 
   /* Send the command */
   FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
@@ -170,7 +170,7 @@ void SDRAM_InitSequence(void)
   FMC_SDRAMCommandStructure.AutoRefreshNumber = 1;
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* Wait until the SDRAM controller is ready */
-  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
+  // while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
 
   /* Send the command */
   FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
@@ -183,7 +183,7 @@ void SDRAM_InitSequence(void)
     FMC_SDRAMCommandStructure.ModeRegisterDefinition = 0;
 
     /* Wait until the SDRAM controller is ready */
-    while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
+    // while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
 
     /* Send the command */
     FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
@@ -203,7 +203,7 @@ void SDRAM_InitSequence(void)
   FMC_SDRAMCommandStructure.ModeRegisterDefinition = tmpr;
 
   /* Wait until the SDRAM controller is ready */
-  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
+  // while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
 
   /* Send the command */
   FMC_SDRAM_SendCommand(FMC_SDRAM_DEVICE, &FMC_SDRAMCommandStructure, 10);
@@ -212,9 +212,13 @@ void SDRAM_InitSequence(void)
   /* Set the device refresh rate
    * COUNT = [(SDRAM self refresh time / number of row) x  SDRAM CLK] – 20
            = [(64ms/4096) * 84MHz] - 20 = 1312 - 20 ~ 1292 */
+#if defined(STM32H7)
+  FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_DEVICE, 918);
+#else
   FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_DEVICE, 1292);
+#endif
   /* Wait until the SDRAM controller is ready */
-  while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
+  // while((__FMC_SDRAM_GET_FLAG(FMC_SDRAM_DEVICE, FMC_SDRAM_FLAG_BUSY) != 0));
 }
 
 extern "C" void SDRAM_Init(void)
@@ -249,6 +253,13 @@ extern "C" void SDRAM_Init(void)
   /* TRCD: 15ns => 2x11.9ns */
   FMC_SDRAMTimingInitStructure.RCDDelay             = 2;
 
+#if defined(STM32H7)
+  /* TRC:  min=60 (6x11.9ns) */
+  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 7;
+  /* TWR:  2 CLK */
+  FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 3;
+#endif
+
   /* FMC SDRAM control configuration */
   FMC_SDRAMInitStructure.SDBank = SDRAM_BANK;
   /* Row addressing: [7:0] */
@@ -267,8 +278,9 @@ extern "C" void SDRAM_Init(void)
   /* FMC SDRAM bank initialization */
   FMC_SDRAM_Init(FMC_SDRAM_DEVICE, &FMC_SDRAMInitStructure);
   FMC_SDRAM_Timing_Init(FMC_SDRAM_DEVICE, &FMC_SDRAMTimingInitStructure, SDRAM_BANK);
-
-
+#if defined(STM32H7)
+  __FMC_ENABLE();
+#endif
   /* FMC SDRAM device initialization sequence */
   SDRAM_InitSequence();
   FMC_SDRAM_WriteProtection_Disable(FMC_SDRAM_DEVICE, SDRAM_BANK);

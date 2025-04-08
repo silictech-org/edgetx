@@ -28,3 +28,5 @@ int stm32_qspi_nor_read(uint32_t address, void* data, uint32_t len);
 int stm32_qspi_nor_erase_sector(uint32_t address);
 int stm32_qspi_nor_program(uint32_t address, void* data, uint32_t len);
 
+
+#define QSPI_FLASH_SIZE (16*1024*1024)
