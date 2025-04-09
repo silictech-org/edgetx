@@ -43,7 +43,7 @@
 #include "debug.h"
 
 #include "timers_driver.h"
-#include "tp_gt911.h"
+#include "touch_driver.h"
 
 #include "extram_driver.h"
 #include "extflash_driver.h"

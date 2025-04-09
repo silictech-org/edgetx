@@ -108,7 +108,7 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/tp_gt911.cpp
+  ${TARGET_SRC_DIR}/touch_driver.cpp
   # ${TARGET_SRC_DIR}/audio_driver.cpp
   drivers/wm8904.cpp
   targets/common/arm/stm32/lsm6ds_driver.cpp
