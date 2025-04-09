@@ -14,38 +14,6 @@ int32_t ExtFLASH_Init()
   stm32_qspi_nor_init();
 
   stm32_qspi_nor_memory_mapped();
-
-  uint8_t temp[128] = {0};
-
-  test_uart_printf("qspi: \n");
-
-  stm32_qspi_nor_read(0, temp, 128);
-
-  for(uint16_t i = 0; i < 128; i++) {
-    test_uart_printf("%02x ", temp[i]);
-  }
-
-  test_uart_printf("----------------------\n");
-
-  stm32_qspi_nor_read(0x119250, temp, 128);
-  
-  for(uint16_t i = 0 ;i < 128; i++) {
-    test_uart_printf("%02x ", temp[i]);
-  }
-
-  test_uart_printf("\n");
-
-  // // init HAL hxspi_nur
-  // ExtFLASH_InitHALStruct();
-
-  // if (stm32_xspi_nor_init(&xspi_dev) != 0) {
-  //   return BSP_ERROR_PERIPH_FAILURE;
-  // }
-
-  // if (stm32_xspi_nor_memory_mapped(&xspi_dev) != 0) {
-  //   return BSP_ERROR_PERIPH_FAILURE;
-  // }
-
   /* Return BSP status */
   return BSP_ERROR_NONE;
 }

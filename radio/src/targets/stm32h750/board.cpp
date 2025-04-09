@@ -69,7 +69,6 @@ bool boardBLStartCondition()
 
 void boardBLPreJump()
 {
-  test_uart_printf("init ext flash\n");
   // timersInit();
   ExtFLASH_Init();
   ExtRAM_Init();
@@ -93,28 +92,18 @@ void boardBLInit()
 
 void boardInit()
 {
-  __enable_irq();
-  delaysInit();
-  
-  timersInit();
-  ledInit();
-  test_uart_init();
-
-  // *****************
   // enable interrupts
-  // __enable_irq();
+  __enable_irq();
 
 #if defined(DEBUG)
   serialSetMode(SP_AUX1, UART_MODE_DEBUG);                // indicate AUX1 is used
   serialInit(SP_AUX1, UART_MODE_DEBUG);                   // early AUX1 init
 #endif
-  pwrInit();
 
   boardInitModulePorts();
-  pwrOn();
-  test_uart_printf("pwrOn \n");
-  // delaysInit();
-  // timersInit();
+
+  delaysInit();
+  timersInit();
 
   // ExtFLASH_InitRuntime();
 
@@ -130,15 +119,12 @@ void boardInit()
   rotaryEncoderInit();
 
   adcInit(&_adc_driver);
-  // setAnalogValue(adcGetInputOffset(ADC_INPUT_VBAT), 840 * 2);
-  // setAnalogValue(adcGetInputOffset(ADC_INPUT_RTC_BAT), 300 * 2);
 
   hapticInit();
 
 #if defined(RTCLOCK)
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
-  test_uart_printf("TOUCH INIT \n");
   delay_ms(50); // GT911 is a bit slow on power ON
   touchPanelInit();
   lcdSetInitalFrameBuffer(lcdFront->getData());
@@ -148,7 +134,6 @@ extern void rtcDisableBackupReg();
 
 void boardOff()
 {
-  test_uart_printf("boardOff \n");
   // lcdOff();
 
   while (pwrPressed()) {

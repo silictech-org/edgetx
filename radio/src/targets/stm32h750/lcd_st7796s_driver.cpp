@@ -485,7 +485,6 @@ extern "C" void lcdSetInitalFrameBuffer(void* fbAddress)
 
 extern "C" void lcdInit(void)
 {
-  test_uart_printf("  lcdInit \n");
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();
 

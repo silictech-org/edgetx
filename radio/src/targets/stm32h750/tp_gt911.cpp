@@ -447,10 +447,10 @@
  
  void I2C_Init_Radio(void)
  {
-   test_uart_printf("GT911 I2C Init\n");
+   TRACE("GT911 I2C Init\n");
  
    if (i2c_init(TOUCH_I2C_BUS) < 0) {
-     test_uart_printf("GT911 ERROR: i2c_init failed\n");
+     TRACE("GT911 ERROR: i2c_init failed\n");
      return;
    }
  }
@@ -469,7 +469,7 @@
  
    if (stm32_i2c_master_tx(TOUCH_I2C_BUS, GT911_I2C_ADDR, uAddrAndBuf, len + 2,
                            100) < 0) {
-     test_uart_printf("I2C B1 ERROR: WriteRegister failed\n");
+     TRACE("I2C B1 ERROR: WriteRegister failed\n");
      return false;
    }
    return true;
@@ -482,12 +482,12 @@
    uRegAddr[1] = (uint8_t)(reg & 0x00FF);
  
    if (stm32_i2c_master_tx(TOUCH_I2C_BUS, GT911_I2C_ADDR, uRegAddr, 2, 10) < 0) {
-     test_uart_printf("I2C B1 ERROR: ReadRegister write reg address failed\n");
+     TRACE("I2C B1 ERROR: ReadRegister write reg address failed\n");
      return false;
    }
  
    if (stm32_i2c_master_rx(TOUCH_I2C_BUS, GT911_I2C_ADDR, buf, len, 100) < 0) {
-     test_uart_printf("I2C B1 ERROR: ReadRegister read reg address failed\n");
+     TRACE("I2C B1 ERROR: ReadRegister read reg address failed\n");
      return false;
    }
    return true;
@@ -505,19 +505,19 @@
    buf[0] = (~buf[0]) + 1;
  
    if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG, (uint8_t *)&cfgVer, 1)) {
-     test_uart_printf("GT911 ERROR: write config failed\n");
+     TRACE("GT911 ERROR: write config failed\n");
      bResult = false;
    }
  
    if (!I2C_GT911_WriteRegister(GT911_CONFIG_REG+1, (uint8_t *)&TOUCH_GT911_Cfg[1],
                                 sizeof(TOUCH_GT911_Cfg)-1)) {
-     test_uart_printf("GT911 ERROR: write config failed\n");
+     TRACE("GT911 ERROR: write config failed\n");
      bResult = false;
    }
  
    // write checksum and config_fresh
    if (!I2C_GT911_WriteRegister(GT911_CONFIG_CHECKSUM_REG, buf, 2)) {
-     test_uart_printf("GT911 ERROR: write config checksum failed\n");
+     TRACE("GT911 ERROR: write config checksum failed\n");
      bResult = false;
    }
  
@@ -540,7 +540,7 @@
      gpio_init_int(TOUCH_INT_GPIO, GPIO_IN_PU, GPIO_RISING, _gt911_exti_isr);
      return true;
    } else {
-     test_uart_printf("Touchpanel init start ...\n");
+     TRACE("Touchpanel init start ...\n");
  
      gpio_init(TOUCH_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
      gpio_init(TOUCH_INT_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
@@ -560,44 +560,44 @@
  
      delay_ms(50);
  
-     test_uart_printf("Reading Touch registry\n");
+     TRACE("Reading Touch registry\n");
      if (!I2C_GT911_ReadRegister(GT911_PRODUCT_ID_REG, tmp, 4)) {
-       test_uart_printf("GT911 ERROR: Product ID read failed\n");
+       TRACE("GT911 ERROR: Product ID read failed\n");
      }
  
      if (strcmp((char *)tmp, TP_GT911_ID) == 0) {
-       test_uart_printf("GT911 chip detected\n");
+       TRACE("GT911 chip detected\n");
        tmp[0] = 0X02;
        if (!I2C_GT911_WriteRegister(GT911_COMMAND_REG, tmp, 1)) {
-         test_uart_printf("GT911 ERROR: write to control register failed\n");
+         TRACE("GT911 ERROR: write to control register failed\n");
        }
        if (!I2C_GT911_ReadRegister(GT911_CONFIG_REG, tmp, 1)) {
-         test_uart_printf("GT911 ERROR: configuration register read failed\n");
+         TRACE("GT911 ERROR: configuration register read failed\n");
        }
  
-       test_uart_printf("Chip config Ver:%x", tmp[0]);
+       TRACE("Chip config Ver:%x", tmp[0]);
        if ((tp_gt911_cfgVer == 0) || (tmp[0] < tp_gt911_cfgVer)) { // Config ver
-         test_uart_printf("Sending new config %d", GT911_CFG_NUMBER);
+         TRACE("Sending new config %d", GT911_CFG_NUMBER);
          if (!I2C_GT911_SendConfig(tp_gt911_cfgVer)) {
-           test_uart_printf("GT911 ERROR: sending configration failed\n");
+           TRACE("GT911 ERROR: sending configration failed\n");
          }
          if (!I2C_GT911_ReadRegister(GT911_CONFIG_REG, tmp, 1)) {
-           test_uart_printf("GT911 ERROR: configuration register read failed\n");
+           TRACE("GT911 ERROR: configuration register read failed\n");
          }
          tp_gt911_cfgVer = tmp[0];
        }
  
        if (!I2C_GT911_ReadRegister(GT911_FIRMWARE_VERSION_REG, tmp, 2)) {
-         test_uart_printf("GT911 ERROR: reading firmware version failed\n");
+         TRACE("GT911 ERROR: reading firmware version failed\n");
        } else {
          touchGT911fwver = (tmp[1] << 8) + tmp[0];
-         test_uart_printf("GT911 FW version: %u", touchGT911fwver);
+         TRACE("GT911 FW version: %u", touchGT911fwver);
        }
  
        delay_ms(10);
        tmp[0] = 0X00;
        if (!I2C_GT911_WriteRegister(GT911_COMMAND_REG, tmp, 1)) { // end reset
-         test_uart_printf("GT911 ERROR: write to command register failed\n");
+         TRACE("GT911 ERROR: write to command register failed\n");
        }
        touchGT911Flag = true;
  
@@ -605,21 +605,21 @@
  
        return true;
      }
-     test_uart_printf("GT911 chip NOT FOUND\n");
+     TRACE("GT911 chip NOT FOUND\n");
      return false;
    }
  }
  
  bool I2C_ReInit(void)
  {
-   test_uart_printf("I2C B1 ReInit\n");
+   TRACE("I2C B1 ReInit\n");
    touchPanelDeInit();
    if (stm32_i2c_deinit(TOUCH_I2C_BUS) < 0)
-     test_uart_printf("I2C B1 ReInit - I2C DeInit failed\n");
+     TRACE("I2C B1 ReInit - I2C DeInit failed\n");
  
    // If DeInit fails, try to re-init anyway
    if (!touchPanelInit()) {
-     test_uart_printf("I2C B1 ReInit - touchPanelInit failed\n");
+     TRACE("I2C B1 ReInit - touchPanelInit failed\n");
      return false;
    }
    return true;
@@ -658,8 +658,8 @@
      if (!I2C_GT911_ReadRegister(GT911_READ_XY_REG, &state, 1)) {
        // ledRed();
        touchGT911hiccups++;
-       test_uart_printf("GT911 I2C read XY error\n");
-       if (!I2C_ReInit()) test_uart_printf("I2C B1 ReInit failed\n");
+       TRACE("GT911 I2C read XY error\n");
+       if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed\n");
        return internalTouchState;
      }
  
@@ -672,7 +672,7 @@
  
    internalTouchState.deltaX = 0;
    internalTouchState.deltaY = 0;
-   test_uart_printf("touch state = 0x%x", state);
+   TRACE("touch state = 0x%x", state);
    if (state & 0x80u) {
      uint8_t pointsCount = (state & 0x0Fu);
      uint32_t now = RTOS_GET_MS();
@@ -683,8 +683,8 @@
                                    pointsCount * sizeof(TouchPoint))) {
          // ledRed();
          touchGT911hiccups++;
-         test_uart_printf("GT911 I2C data read error\n");
-         if (!I2C_ReInit()) test_uart_printf("I2C B1 ReInit failed\n");
+         TRACE("GT911 I2C data read error\n");
+         if (!I2C_ReInit()) TRACE("I2C B1 ReInit failed\n");
          return internalTouchState;
        }
          
@@ -731,10 +731,10 @@
  
    uint8_t zero = 0;
    if (!I2C_GT911_WriteRegister(GT911_READ_XY_REG, &zero, 1)) {
-     test_uart_printf("GT911 ERROR: clearing XY register failed\n");
+     TRACE("GT911 ERROR: clearing XY register failed\n");
    }
  
-  //  test_uart_printf("touch event = %s", event2str(internalTouchState.event));
+  //  TRACE("touch event = %s", event2str(internalTouchState.event));
    return internalTouchState;
  }
  

@@ -340,7 +340,6 @@ static void _crsf_intmodule_frame_received(void*)
 #if defined(STM32H7)
 static void _crsf_extmodule_frame_received(void*)
 {
-  // test_uart_printf(" _crsf_extmodule_frame_received\n");
   telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
 }
 #else
