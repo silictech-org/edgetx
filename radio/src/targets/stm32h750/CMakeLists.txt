@@ -79,8 +79,6 @@ set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/led_driver.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
-  # ${TARGET_SRC_DIR}/seesaw.cpp
-  # ${TARGET_SRC_DIR}/bsp_io.cpp
   ${TARGET_SRC_DIR}/extflash_driver.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/dma2d.cpp

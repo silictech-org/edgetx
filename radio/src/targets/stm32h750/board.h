@@ -56,6 +56,26 @@ void test_led_init();
 void boardInit();
 void boardOff();
 
+/* LCD BackLight control pin */
+#define LCD_BL_CTRL_PIN                  GPIO_PIN_13
+#define LCD_BL_CTRL_GPIO_PORT            GPIOG
+#define LCD_BL_CTRL_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOG_CLK_ENABLE()
+#define LCD_BL_CTRL_GPIO_CLK_DISABLE()   __HAL_RCC_GPIOG_CLK_DISABLE()
+
+/* LCD Brightness default value */
+#define LCD_BRIGHTNESS_DEFAULT_VALUE   50U
+
+/*LCD LPTimer brightness control parameters */
+#define LCD_LPTIMx                     LPTIM1
+#define LCD_LPTIMx_CLK_ENABLE()        __HAL_RCC_LPTIM1_CLK_ENABLE()
+#define LCD_LPTIMx_CLK_DISABLE()       __HAL_RCC_LPTIM1_CLK_DISABLE()
+#define LCD_LPTIMx_CHANNEL             TIM_CHANNEL_2
+#define LCD_LPTIMx_CHANNEL_AF          GPIO_AF1_LPTIM1
+#define LCD_LPTIMX_PERIOD_VALUE        ((uint32_t)10000) /* Period Value    */
+#define LCD_LPTIMX_PULSE_VALUE         (((uint32_t)(LCD_LPTIMX_PERIOD_VALUE +1U)*LCD_BRIGHTNESS_DEFAULT_VALUE/100U)-1U)
+#define LCD_LPTIMX_PRESCALER_VALUE     LPTIM_PRESCALER_DIV1  /* Prescaler divider Value */
+#define LCD_LPTIMX_CLOCK_SOURCE        LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC /* internal clock source */
+
 // CPU Unique ID
 #define LEN_CPU_UID                     (3*8+2)
 void getCPUUniqueID(char * s);
@@ -171,15 +191,9 @@ bool isBacklightEnabled();
                         : g_eeGeneral.blOffBright);                       \
   }
 
-#if defined(RADIO_PL18EV)
-#define USB_NAME                        "FlySky PL18EV"
-#define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                     'P', 'L', '1', '8', 'E', 'V', ' ', ' '  /* 8 Bytes */
-#else
-#define USB_NAME                        "FlySky PL18"
-#define USB_MANUFACTURER                'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                     'P', 'L', '1', '8', ' ', ' ', ' ', ' '  /* 8 Bytes */
-#endif
+#define USB_NAME                        "Silic RE35"
+#define USB_MANUFACTURER                'S', 'i', 'l', 'i', 'c', ' ', ' ', ' '  /* 8 bytes */
+#define USB_PRODUCT                     'R', 'E', '3', '5', ' ', ' ', ' ', ' '  /* 8 Bytes */
 
 #if defined(__cplusplus) && !defined(SIMU)
 }
