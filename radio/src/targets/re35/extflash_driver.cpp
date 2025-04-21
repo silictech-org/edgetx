@@ -1,9 +1,8 @@
 #include "extflash_driver.h"
 
-#include "stm32h7xx_hal_qspi.h"
+#include "stm32_hal.h"
 #include "stm32_qspi.h"
 #define QSPI_NOR_PAGE_SIZE 256
-extern QSPI_HandleTypeDef hqspi;
 
 #include "stm32_serial_driver.h"
 
