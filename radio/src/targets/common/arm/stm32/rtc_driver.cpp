@@ -106,7 +106,11 @@ void rtcInit()
 #endif
 
 #if defined(RTC_BACKUP_RAM) && !defined(BOOT)
+#if defined(STM32H7)
+  __HAL_RCC_BKPRAM_CLK_ENABLE();
+#else
   __HAL_RCC_BKPSRAM_CLK_ENABLE();
+#endif
   HAL_PWREx_EnableBkUpReg();
   HAL_PWR_EnableBkUpAccess();
 #endif
@@ -115,7 +119,11 @@ void rtcInit()
 void rtcDisableBackupReg()
 {
 #if defined(RTC_BACKUP_RAM)
+#if defined(STM32H7)
+  __HAL_RCC_BKPRAM_CLKAM_DISABLE();
+#else
   __HAL_RCC_BKPSRAM_CLK_DISABLE();
+#endif
   HAL_PWREx_DisableBkUpReg();
   HAL_PWR_DisableBkUpAccess();
 #endif

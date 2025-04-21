@@ -39,6 +39,8 @@ Backup::RamBackupUncompressed ramBackupUncompressed __DMA;
 #if defined(SIMU)
 RamBackup _ramBackup;
 RamBackup * ramBackup = &_ramBackup;
+#elif defined(STM32H7)
+RamBackup * ramBackup = (RamBackup *)D3_BKPSRAM_BASE;
 #else
 RamBackup * ramBackup = (RamBackup *)BKPSRAM_BASE;
 #endif
