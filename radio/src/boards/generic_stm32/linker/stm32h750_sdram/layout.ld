@@ -1,6 +1,7 @@
 /* SDRAM definitions */
 SDRAM_START = DEFINED(__sdram_start) ? __sdram_start : 0xC0000000;
 SDRAM_SIZE = DEFINED(__sdram_size) ? __sdram_size : 8192K;
+FLASH_SIZE = DEFINED(__flash_size) ? __flash_size : 8192K;
 
 /* Highest heap address */
 HEAP_ADDRESS = SDRAM_START + SDRAM_SIZE;
@@ -27,7 +28,7 @@ MEMORY
   RAM_D2 (xrw)   : ORIGIN = 0x30000000, LENGTH = 288K
   RAM_D3 (xrw)   : ORIGIN = 0x38000000, LENGTH = 64K
   SDRAM (rwx)    : ORIGIN = SDRAM_START, LENGTH = SDRAM_SIZE
-  NORFLASH (rx)  : ORIGIN = 0x90000000, LENGTH = 8M
+  NORFLASH (rx)  : ORIGIN = 0x90000000, LENGTH = FLASH_SIZE
 }
 
 REGION_ALIAS("REGION_BOOTLOADER",   FLASH);
