@@ -337,10 +337,17 @@ static void _crsf_intmodule_frame_received(void*)
 #endif
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
+#if !defined(TELEMETRY_RX_FRAME_EXTI_LINE)
+static void _crsf_extmodule_frame_received(void*)
+{
+  telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
+}
+#else
 static void _crsf_extmodule_frame_received()
 {
   telemetryFrameTrigger_ISR(EXTERNAL_MODULE, &CrossfireDriver);
 }
+#endif
 
 // proxy trigger to avoid calling
 // FreeRTOS methods from ISR with prio 0
@@ -348,7 +355,7 @@ static void _soft_irq_trigger(void*)
 {
 #if defined(TELEMETRY_USE_CUSTOM_EXTI)
   stm32_exti_custom_trigger_swi(TELEMETRY_RX_FRAME_EXTI_LINE);
-#else
+#elif defined(TELEMETRY_RX_FRAME_EXTI_LINE)
   stm32_exti_trigger_swi(TELEMETRY_RX_FRAME_EXTI_LINE);
 #endif
 }
@@ -394,6 +401,11 @@ static void* crossfireInit(uint8_t module)
       auto& rx_count = getTelemetryRxBufferCount(EXTERNAL_MODULE);
       rx_count = 0;
 
+#if !defined(TELEMETRY_RX_FRAME_EXTI_LINE)
+      if (drv && ctx && drv->setIdleCb) { 
+        drv->setIdleCb(ctx, _crsf_extmodule_frame_received, nullptr);
+      }
+#else
 #if !defined(SIMU)
       if (drv && ctx && drv->setIdleCb) {
         drv->setIdleCb(ctx, _soft_irq_trigger, nullptr);
@@ -406,6 +418,7 @@ static void* crossfireInit(uint8_t module)
 #endif
 
       }
+#endif
 #endif
     }
 
@@ -434,7 +447,7 @@ static void crossfireDeInit(void* ctx)
     if (drv && ctx && drv->setIdleCb) {
 #if defined(TELEMETRY_USE_CUSTOM_EXTI)
       stm32_exti_custom_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
-#else
+#elif defined(TELEMETRY_RX_FRAME_EXTI_LINE)
      stm32_exti_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
 #endif
     }
