@@ -102,29 +102,43 @@ void dacInit()
   AUDIO_DMA->HIFCR = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTEIF5 |
                      DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CFEIF5;
 
+#if defined(STM32H7)
+  LL_DMA_SetPeriphRequest(DMA1, LL_DMA_STREAM_5, LL_DMAMUX1_REQ_DAC1_CH1);
+#endif
+
   // Chan 7, 16-bit wide, Medium priority, memory increments
-  AUDIO_DMA_Stream->CR = DMA_SxCR_CHSEL_0 | DMA_SxCR_CHSEL_1 |
-                         DMA_SxCR_CHSEL_2 | DMA_SxCR_PL_0 | DMA_SxCR_MSIZE_0 |
+  AUDIO_DMA_Stream->CR = DMA_SxCR_PL_0 | DMA_SxCR_MSIZE_0 |
                          DMA_SxCR_PSIZE_0 | DMA_SxCR_MINC | DMA_SxCR_DIR_0 |
                          DMA_SxCR_CIRC;
+  
+#if !defined(STM32H7)
+  AUDIO_DMA_Stream->CR |= DMA_SxCR_CHSEL_0 | DMA_SxCR_CHSEL_1 | DMA_SxCR_CHSEL_2; // DMA channel
+#endif
 
   // write to DAC channel 1 (12 bits, left-aligned)
-  AUDIO_DMA_Stream->PAR = CONVERT_PTR_UINT(&DAC->DHR12L1);
+  AUDIO_DMA_Stream->PAR = CONVERT_PTR_UINT(&DAC1->DHR12L1);
 
   // disable direct mode and set FIFO threshold to half
   AUDIO_DMA_Stream->FCR = DMA_SxFCR_DMDIS | DMA_SxFCR_FTH_0;
 
+#if defined(STM32H7)
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC12);
+#else
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC1);
+#endif
 
   // set data registre to silence
-  DAC->DHR12L1 = AUDIO_DATA_SILENCE;
+  DAC1->DHR12L1 = AUDIO_DATA_SILENCE;
 
   // clear underrun flag
-  DAC->SR = DAC_SR_DMAUDR1;
+  DAC1->SR = DAC_SR_DMAUDR1;
 
-  // use TIM6 TRGO as trigger (TSEL1 = TSEL2 = 000)
+  // use TIM6 TRGO as trigger
+#if defined(STM32H7)
+  DAC1->CR = DAC_CR_TSEL1_2 | DAC_CR_TSEL1_0;
+#endif
   // enable DAC & channel 1 trigger
-  DAC->CR = DAC_CR_TEN1 | DAC_CR_EN1;
+  DAC1->CR |= DAC_CR_TEN1 | DAC_CR_EN1;
 
   NVIC_EnableIRQ(AUDIO_DMA_Stream_IRQn);
   NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
@@ -182,6 +196,9 @@ void audioConsumeCurrentBuffer()
       audioUnmute();
 #endif
 
+#if defined(STM32H7)
+      SCB_CleanDCache();
+#endif
       // Disable DMA stream
       AUDIO_DMA_Stream->CR &= ~DMA_SxCR_EN;
 
@@ -198,10 +215,10 @@ void audioConsumeCurrentBuffer()
       AUDIO_DMA_Stream->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;
 
       // clear underrun flag
-      DAC->SR = DAC_SR_DMAUDR1;
+      DAC1->SR = DAC_SR_DMAUDR1;
 
       // enable DAC
-      DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1;
+      DAC1->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1 | DAC_CR_TSEL1_2 | DAC_CR_TSEL1_0;
 
     } else {
 #if defined(AUDIO_MUTE_GPIO)
@@ -219,7 +236,7 @@ void audioInit()
 
 void audioEnd()
 {
-  DAC->CR = 0;
+  DAC1->CR = 0;
   AUDIO_TIMER->CR1 = 0;
 
   // Also need to turn off any possible interrupts
@@ -244,6 +261,9 @@ extern "C" void AUDIO_DMA_Stream_IRQHandler()
   nextBuffer = audioQueue.buffersFifo.getNextFilledBuffer();
 
   if (nextBuffer) {
+#if defined(STM32H7)
+    SCB_CleanDCache();
+#endif  
     AUDIO_DMA_Stream->M0AR = CONVERT_PTR_UINT(nextBuffer->data);
     AUDIO_DMA_Stream->NDTR = nextBuffer->size;
 
@@ -255,6 +275,6 @@ extern "C" void AUDIO_DMA_Stream_IRQHandler()
     AUDIO_DMA_Stream->CR |= DMA_SxCR_EN | DMA_SxCR_TCIE;
 
     // clear underrun flag
-    DAC->SR = DAC_SR_DMAUDR1;
+    DAC1->SR = DAC_SR_DMAUDR1;
   }
 }
