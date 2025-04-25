@@ -230,12 +230,27 @@ void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp
   spiInit.TransferDirection = LL_SPI_FULL_DUPLEX;
   spiInit.Mode = LL_SPI_MODE_MASTER;
   spiInit.NSS = LL_SPI_NSS_SOFT;
+//  spiInit.NSS = LL_SPI_NSS_HARD_OUTPUT;
   spiInit.DataWidth = data_width;
 
+
   LL_SPI_Init(SPIx, &spiInit);
-  LL_SPI_Enable(SPIx);
+
 #if defined(STM32H7) || defined(STM32H7RS)
+  /* This locks SPI pins in AF mode when the SPI is disabled, to avoid glitches on CLK */
+  /* Temporary disable may be required to recover from weird states; see errata - pa01 */
+//  LL_SPI_EnableGPIOControl(SPIx);
+//  LL_SPI_DisableMasterRxAutoSuspend(SPIx);
+
+  /* Set transfer size = 0 (not using 'transfers') */
+  LL_SPI_SetTransferSize(SPIx, 0);
+  LL_SPI_SetFIFOThreshold(SPIx, LL_SPI_FIFO_TH_01DATA);
+
+//  SPIx->CFG2 |= SPI_CFG2_IOSWP;
+  LL_SPI_Enable(SPIx);
   LL_SPI_StartMasterTransfer(SPIx);
+#else
+  LL_SPI_Enable(SPIx);
 #endif
 
 #if defined(USE_SPI_DMA)
@@ -271,6 +286,17 @@ void stm32_spi_set_max_baudrate(const stm32_spi_t* spi, uint32_t baudrate)
 #endif
 }
 
+#if defined(STM32H7) || defined(STM32H7RS)
+void stm32_spi_set_data_width(const stm32_spi_t* spi, uint32_t dataWidth)
+{
+  auto* SPIx = spi->SPIx;
+  LL_SPI_Disable(SPIx);
+  LL_SPI_SetDataWidth(SPIx, dataWidth);
+  LL_SPI_Enable(SPIx);
+  LL_SPI_StartMasterTransfer(SPIx);
+}
+#endif
+
 uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out)
 {
   auto* SPIx = spi->SPIx;
@@ -290,7 +316,7 @@ uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out)
 }
 
 uint16_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
-				  uint8_t* in, uint16_t length)
+				  uint8_t* in, size_t length)
 {
   unsigned trans_bytes = 0;
   uint8_t in_temp;
@@ -361,7 +387,7 @@ static void _dma_enable_stream(DMA_TypeDef* DMAx, uint32_t stream,
 #endif
 
 uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
-				     uint8_t* data, uint16_t length)
+				     uint8_t* data, size_t length)
 {
 #if defined(USE_SPI_DMA)
   if (!spi->DMA) {
@@ -413,7 +439,7 @@ uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi,
 }
 
 uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi,
-                                      const uint8_t* data, uint16_t length)
+                                      const uint8_t* data, size_t length)
 {
 #if defined(USE_SPI_DMA)
   if (!spi->DMA) {
