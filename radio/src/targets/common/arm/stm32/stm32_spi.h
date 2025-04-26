@@ -65,10 +65,10 @@ uint8_t stm32_spi_transfer_byte(const stm32_spi_t* spi, uint8_t out);
 uint16_t stm32_spi_transfer_word(const stm32_spi_t* spi, uint16_t out);
 
 uint16_t stm32_spi_transfer_bytes(const stm32_spi_t* spi, const uint8_t* out,
-                                  uint8_t* in, size_t length);
+                                  uint8_t* in, uint16_t length);
 
 uint16_t stm32_spi_dma_receive_bytes(const stm32_spi_t* spi, uint8_t* data,
-                                     size_t length);
+                                     uint16_t length);
 
 uint16_t stm32_spi_dma_transmit_bytes(const stm32_spi_t* spi, const uint8_t* data,
-                                      size_t length);
+                                      uint16_t length);

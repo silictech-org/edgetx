@@ -328,18 +328,15 @@ extern "C" void AUDIO_DMA_Stream_IRQHandler()
 {
 #if defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
   bool stopDMA = false;
-  if(stm32_dma_check_ht_flag(AUDIO_DMA, AUDIO_DMA_Stream))
-  {
+  if(stm32_dma_check_ht_flag(AUDIO_DMA, AUDIO_DMA_Stream)) {
     stopDMA = audio_update_dma_buffer(0);
   }
 
-  if(stm32_dma_check_tc_flag(AUDIO_DMA, AUDIO_DMA_Stream))
-  {
+  if(stm32_dma_check_tc_flag(AUDIO_DMA, AUDIO_DMA_Stream)) {
     stopDMA |= audio_update_dma_buffer(1);
   }
 
-  if(stopDMA)
-  {
+  if(stopDMA) {
     LL_DMA_DisableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
     LL_DMA_DisableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
     LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
