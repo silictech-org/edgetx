@@ -266,9 +266,10 @@
 //#define STORAGE_USE_SPI_FLASH // Use SPI flash for storage instead of SD card
 
 // Audio
+#define AUDIO_DAC                     DAC1
 #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOA, 7) // PA.07
 #define AUDIO_OUTPUT_GPIO             GPIO_PIN(GPIOA, 4) // PA.04
-#define AUDIO_DMA_Stream              DMA1_Stream5
+#define AUDIO_DMA_Stream              LL_DMA_STREAM_5
 #define AUDIO_DMA_Stream_IRQn         DMA1_Stream5_IRQn
 #define AUDIO_TIM_IRQn                TIM6_DAC_IRQn
 #define AUDIO_TIM_IRQHandler          TIM6_DAC_IRQHandler
@@ -276,7 +277,7 @@
 #define AUDIO_TIMER                   TIM6
 #define AUDIO_DMA                     DMA1
 #define AUDIO_DMA_MUX                 DMAMUX1
-#define AUDIO_DMA_DMA_CHANNEL         LL_DMAMUX1_REQ_DAC1_CH1
+#define AUDIO_DMA_Channel             LL_DMAMUX1_REQ_DAC1_CH1
 #define AUDIO_UNMUTE_DELAY            120  // ms
 #define AUDIO_MUTE_DELAY              500  // ms
 
