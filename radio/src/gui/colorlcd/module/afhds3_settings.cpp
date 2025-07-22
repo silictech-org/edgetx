@@ -87,6 +87,11 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
     return 0;
   });
 
+  new TextButton(afhds3TypeForm, rect_t{}, STR_TELEMETRY_SENSORS, [=]() {
+    new AFHDS3_Sensors(moduleIdx);
+    return 0;
+  });
+
   if (moduleIdx == EXTERNAL_MODULE) {
     line = newLine(grid);
     auto cfg = afhds3::getConfig(moduleIdx);
